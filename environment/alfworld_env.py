@@ -41,9 +41,30 @@ class ALFWorldEnv:
             # Try the correct ALFWorld import pattern
             from alfworld.agents.environment import get_environment
             from alfworld.agents.modules.generic import load_config
+            import os
             
-            # Load config
-            config = load_config()
+            # Set ALFWorld data path if not set
+            if not os.environ.get('ALFWORLD_DATA'):
+                alfworld_data = os.path.expanduser('~/.cache/alfworld')
+                os.environ['ALFWORLD_DATA'] = alfworld_data
+                print(f"Set ALFWORLD_DATA to: {alfworld_data}")
+            
+            # Load config with default parameters
+            try:
+                config = load_config()
+            except:
+                # If config loading fails, create a minimal config
+                config = {
+                    'env': {
+                        'type': 'AlfredTWEnv'
+                    },
+                    'general': {
+                        'training_method': 'dagger',
+                        'save_path': './logs/',
+                        'seed': 42
+                    }
+                }
+                print("Using default ALFWorld config")
             
             # Get environment type (text-based)
             env_type = config['env']['type']
@@ -53,7 +74,12 @@ class ALFWorldEnv:
             self.env = self.env.init_env(batch_size=1)
             
             # Get number of tasks
-            self.num_tasks = len(self.env.gamefiles) if hasattr(self.env, 'gamefiles') else 134
+            if hasattr(self.env, 'num_games'):
+                self.num_tasks = self.env.num_games
+            elif hasattr(self.env, 'gamefiles'):
+                self.num_tasks = len(self.env.gamefiles)
+            else:
+                self.num_tasks = 134  # Default ALFWorld test set size
             
             print(f"✅ ALFWorld environment loaded successfully with {self.num_tasks} tasks")
             
@@ -66,6 +92,7 @@ class ALFWorldEnv:
         except Exception as e:
             print(f"Warning: ALFWorld setup failed. Running in mock mode.")
             print(f"Setup error: {e}")
+            print("Try running: export ALFWORLD_DATA=~/.cache/alfworld")
             self.env = None
             self.num_tasks = 134
     
