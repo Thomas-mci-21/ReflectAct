@@ -114,23 +114,40 @@ class ALFWorldEnv:
         obs, info = self.env.reset()
         
         # Extract observation and task from ALFWorld format
-        observation = obs[0] if isinstance(obs, list) else obs
+        # obs can be a list of strings or list of tuples
+        raw_obs = obs[0] if isinstance(obs, list) else obs
         
-        # Parse task description from observation
-        # ALFWorld observations typically start with "You are in..."
-        # and the task is usually in the 'extra.goal' field
-        task_description = ""
-        if 'extra.goal' in info:
-            task_description = info['extra.goal'][0]
+        # Handle tuple case (ALFWorld sometimes returns tuples)
+        if isinstance(raw_obs, tuple):
+            observation = raw_obs[0] if raw_obs else ""
         else:
-            # Try to extract from observation
+            observation = raw_obs
+        
+        # Ensure observation is a string
+        observation = str(observation) if observation else ""
+        
+        # Parse task description from info or observation
+        task_description = ""
+        
+        # Try to get from info dict
+        if isinstance(info, dict):
+            if 'extra.goal' in info:
+                goal = info['extra.goal']
+                task_description = goal[0] if isinstance(goal, list) else str(goal)
+            elif 'goal' in info:
+                goal = info['goal']
+                task_description = goal[0] if isinstance(goal, list) else str(goal)
+        
+        # If not found, try to extract from observation
+        if not task_description and observation:
             lines = observation.split('\n')
             for line in lines:
                 if 'task is to' in line.lower() or 'your task' in line.lower():
                     task_description = line
                     break
-            if not task_description:
-                task_description = "Complete the household task."
+        
+        if not task_description:
+            task_description = "Complete the household task."
         
         return observation, task_description
     
@@ -150,7 +167,15 @@ class ALFWorldEnv:
         # Execute action
         obs, scores, dones, infos = self.env.step([action])
         
-        observation = obs[0] if isinstance(obs, list) else obs
+        # Extract observation (handle list and tuple cases)
+        raw_obs = obs[0] if isinstance(obs, list) else obs
+        if isinstance(raw_obs, tuple):
+            observation = raw_obs[0] if raw_obs else ""
+        else:
+            observation = raw_obs
+        observation = str(observation) if observation else ""
+        
+        # Extract reward and done
         reward = scores[0] if isinstance(scores, list) else scores
         done = dones[0] if isinstance(dones, list) else dones
         
