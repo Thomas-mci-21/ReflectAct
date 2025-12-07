@@ -56,8 +56,8 @@ class AlfWorldEnvMPO(BaseEnv):
     
     def conduct_action(self, action: str):
         """Execute action and return observation, reward, done (aligned with MPO)."""
+        # MPO 对齐：完全按照 MPO 的实现
         observation, reward, done, info = self.env.step([action])
-        # MPO 对齐：reward 来自 info['won'][0]
         observation, reward, done = process_ob(observation[0]), info['won'][0], done[0]
         return observation, reward, done
     
@@ -82,7 +82,7 @@ class AlfWorldEnvMPO(BaseEnv):
             action = self.parse_action(llm_output)
             observation, reward, done = self.conduct_action(action)
         except Exception as e:
-            # MPO 对齐：错误处理
+            # MPO 对齐：错误处理（完全对齐 MPO 的实现）
             self.state.success = False
             self.state.finished = False
             self.state.reward = 0

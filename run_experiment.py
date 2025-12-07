@@ -138,7 +138,8 @@ def run_react_agent_mpo_style(
                     
                     if not state.finished:
                         if verbose:
-                            print(f"\n{Colors.BLUE}Observation:{Colors.RESET}\n{observation}")
+                            # observation 已经包含了 "Observation: " 前缀（在 env.step 中添加）
+                            print(f"\n{Colors.BLUE}{observation}{Colors.RESET}")
                             sys.stdout.flush()
                     
                     # MPO 对齐：检查是否需要退出
