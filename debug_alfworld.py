@@ -32,6 +32,9 @@ try:
         'env': {
             'type': 'AlfredTWEnv',
             'goal_desc_human_anns_prob': 0.0,
+            'task_types': [1, 2, 3, 4, 5, 6],
+            'expert_timeout_steps': 150,
+            'expert_type': 'handcoded',
         },
         'dataset': {
             'data_path': alfworld_data,
@@ -40,7 +43,7 @@ try:
         },
         'general': {
             'save_path': './logs/',
-            'training_method': 'dqn',  # Try different values: dqn, dagger, etc.
+            'training_method': 'dqn',
         }
     }
     
@@ -84,8 +87,25 @@ except Exception as e:
     for method in ['dqn', 'dagger', 'random', None, '']:
         print(f"\nTrying training_method='{method}'...")
         try:
-            config['general']['training_method'] = method
-            env_instance2 = EnvClass(config, train_eval='eval_out_of_distribution')
+            full_config = {
+                'env': {
+                    'type': 'AlfredTWEnv',
+                    'goal_desc_human_anns_prob': 0.0,
+                    'task_types': [1, 2, 3, 4, 5, 6],
+                    'expert_timeout_steps': 150,
+                    'expert_type': 'handcoded',
+                },
+                'dataset': {
+                    'data_path': alfworld_data,
+                    'eval_ood_data_path': alfworld_data,
+                    'eval_id_data_path': alfworld_data,
+                },
+                'general': {
+                    'save_path': './logs/',
+                    'training_method': method,
+                }
+            }
+            env_instance2 = EnvClass(full_config, train_eval='eval_out_of_distribution')
             env2 = env_instance2.init_env(batch_size=1)
             print(f"✅ SUCCESS with training_method='{method}'!")
             
