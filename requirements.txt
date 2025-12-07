@@ -1,0 +1,13 @@
+# ReflAct: World-Grounded Decision Making in LLM Agents
+# Paper: https://arxiv.org/abs/2505.15182
+
+# Core dependencies
+openai>=1.0.0
+alfworld>=0.3.0
+pyyaml>=6.0
+python-dotenv>=1.0.0
+
+# For logging and results
+tqdm>=4.65.0
+pandas>=2.0.0
+
