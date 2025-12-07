@@ -40,6 +40,8 @@ try:
             'data_path': alfworld_data,
             'eval_ood_data_path': alfworld_data,
             'eval_id_data_path': alfworld_data,
+            'num_train_games': -1,
+            'num_eval_games': -1,
         },
         'general': {
             'save_path': './logs/',
@@ -99,6 +101,8 @@ except Exception as e:
                     'data_path': alfworld_data,
                     'eval_ood_data_path': alfworld_data,
                     'eval_id_data_path': alfworld_data,
+                    'num_train_games': -1,
+                    'num_eval_games': -1,
                 },
                 'general': {
                     'save_path': './logs/',
