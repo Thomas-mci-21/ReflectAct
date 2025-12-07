@@ -175,9 +175,19 @@ class ALFWorldEnv:
             observation = raw_obs
         observation = str(observation) if observation else ""
         
-        # Extract reward and done
-        reward = scores[0] if isinstance(scores, list) else scores
-        done = dones[0] if isinstance(dones, list) else dones
+        # Extract reward (handle list and tuple cases)
+        raw_reward = scores[0] if isinstance(scores, list) else scores
+        if isinstance(raw_reward, tuple):
+            reward = float(raw_reward[0]) if raw_reward else 0.0
+        else:
+            reward = float(raw_reward) if raw_reward is not None else 0.0
+        
+        # Extract done (handle list and tuple cases)
+        raw_done = dones[0] if isinstance(dones, list) else dones
+        if isinstance(raw_done, tuple):
+            done = bool(raw_done[0]) if raw_done else False
+        else:
+            done = bool(raw_done) if raw_done is not None else False
         
         return observation, reward, done, infos
     
