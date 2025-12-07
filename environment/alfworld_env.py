@@ -36,44 +36,33 @@ class ALFWorldEnv:
         self._setup_env()
     
     def _setup_env(self):
-        """Setup ALFWorld environment."""
+        """Setup ALFWorld environment using official method."""
         try:
-            # Try the correct ALFWorld import pattern
-            from alfworld.agents.environment import get_environment
             import os
+            import sys
+            from alfworld.agents.environment import get_environment
+            import alfworld.agents.modules.generic as generic
             
             # Set ALFWorld data path if not set
             if not os.environ.get('ALFWORLD_DATA'):
                 alfworld_data = os.path.expanduser('~/.cache/alfworld')
                 os.environ['ALFWORLD_DATA'] = alfworld_data
-                print(f"Set ALFWORLD_DATA to: {alfworld_data}")
             
-            # Use complete working config - skip load_config() which requires config file
-            alfworld_data = os.environ.get('ALFWORLD_DATA', os.path.expanduser('~/.cache/alfworld'))
-            config = {
-                'env': {
-                    'type': 'AlfredTWEnv',
-                    'goal_desc_human_anns_prob': 0.0,
-                    'clean_debug': True,
-                    'domain_randomization': False,
-                    'task_types': [1, 2, 3, 4, 5, 6],
-                    'expert_timeout_steps': 150,
-                    'expert_type': 'handcoded'
-                },
-                'dataset': {
-                    'data_path': alfworld_data,
-                    'eval_ood_data_path': alfworld_data,
-                    'eval_id_data_path': alfworld_data,
-                    'num_train_games': -1,
-                    'num_eval_games': -1
-                },
-                'general': {
-                    'save_path': './logs/',
-                    'seed': 42,
-                    'use_templated_goals': False
-                }
-            }
-            print("Using complete working ALFWorld config")
+            # Find config file path
+            config_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'configs', 'base_config.yaml')
+            if not os.path.exists(config_path):
+                raise FileNotFoundError(f"Config file not found: {config_path}")
+            
+            # Official method: set sys.argv for load_config()
+            original_argv = sys.argv.copy()
+            sys.argv = [sys.argv[0], config_path]
+            
+            try:
+                config = generic.load_config()
+            finally:
+                sys.argv = original_argv  # Restore original argv
+            
+            print(f"Loaded config from: {config_path}")
             
             # Get environment type (text-based)
             env_type = config['env']['type']
