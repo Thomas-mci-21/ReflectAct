@@ -48,7 +48,8 @@ class ALFWorldEnv:
                 os.environ['ALFWORLD_DATA'] = alfworld_data
                 print(f"Set ALFWORLD_DATA to: {alfworld_data}")
             
-            # Use working config - skip load_config() which requires config file
+            # Use complete working config - skip load_config() which requires config file
+            alfworld_data = os.environ.get('ALFWORLD_DATA', os.path.expanduser('~/.cache/alfworld'))
             config = {
                 'env': {
                     'type': 'AlfredTWEnv',
@@ -60,14 +61,19 @@ class ALFWorldEnv:
                     'expert_type': 'handcoded'
                 },
                 'dataset': {
-                    'data_path': os.environ.get('ALFWORLD_DATA', os.path.expanduser('~/.cache/alfworld')),
-                    'eval_ood_data_path': os.environ.get('ALFWORLD_DATA', os.path.expanduser('~/.cache/alfworld')),
-                    'eval_id_data_path': os.environ.get('ALFWORLD_DATA', os.path.expanduser('~/.cache/alfworld')),
+                    'data_path': alfworld_data,
+                    'eval_ood_data_path': alfworld_data,
+                    'eval_id_data_path': alfworld_data,
                     'num_train_games': -1,
                     'num_eval_games': -1
+                },
+                'general': {
+                    'save_path': './logs/',
+                    'seed': 42,
+                    'use_templated_goals': False
                 }
             }
-            print("Using working ALFWorld config")
+            print("Using complete working ALFWorld config")
             
             # Get environment type (text-based)
             env_type = config['env']['type']
