@@ -39,6 +39,22 @@ ReflAct is a novel reasoning backbone for LLM agents that shifts reasoning from 
 
 如果你已经设置过环境，下次想要运行实验时：
 
+### 使用Conda环境（推荐，支持真实ALFWorld）
+```bash
+# 1. 进入项目目录
+cd ~/ReflectAct
+
+# 2. 激活conda环境
+conda activate alfworld
+
+# 3. 检查API密钥是否设置
+cat .env
+
+# 4. 运行实验
+python run_experiment.py --agent reflact --num_tasks 5
+```
+
+### 使用venv环境（Mock模式）
 ```bash
 # 1. 进入项目目录
 cd ~/ReflectAct
@@ -49,7 +65,7 @@ source venv/bin/activate
 # 3. 检查API密钥是否设置
 cat .env
 
-# 4. 运行实验
+# 4. 运行实验（Mock模式）
 python run_experiment.py --agent reflact --num_tasks 5
 ```
 
@@ -62,23 +78,37 @@ git clone https://github.com/Thomas-mci-21/ReflectAct.git
 cd ReflectAct
 ```
 
-### 2. Create virtual environment (recommended)
+### 2. Choose installation method
+
+#### Option A: Conda环境（推荐，支持真实ALFWorld）
+
+```bash
+# 创建Python 3.10环境（兼容textworld）
+conda create -n alfworld python=3.10
+conda activate alfworld
+
+# 安装系统依赖（在WSL/Linux中）
+sudo apt update
+sudo apt install -y build-essential python3.10-dev cmake git
+
+# 安装Python依赖
+pip install openai pyyaml python-dotenv tqdm pandas
+
+# 安装ALFWorld（真实环境）
+pip install textworld
+pip install alfworld
+```
+
+#### Option B: venv环境（Mock模式）
 
 ```bash
 python3 -m venv venv
 source venv/bin/activate  # On Linux/Mac/WSL
 # or
 .\venv\Scripts\activate  # On Windows
-```
 
-### 3. Install dependencies
-
-```bash
 # Install core dependencies (works without ALFWorld)
 pip install openai pyyaml python-dotenv tqdm pandas
-
-# Optional: Install ALFWorld for real environment (may have build issues)
-# pip install alfworld
 ```
 
 ### 4. Set up environment variables
@@ -101,6 +131,14 @@ OPENAI_BASE_URL=https://api.chatanywhere.tech/v1
 ### 5. Test installation
 
 ```bash
+# Test ALFWorld installation (conda环境)
+python -c "
+import alfworld
+print('✅ ALFWorld installed successfully!')
+from alfworld.agents.environment import get_environment
+print('✅ Environment import successful!')
+"
+
 # Test the code works
 python test_mock.py
 
@@ -234,6 +272,18 @@ Based on paper Table 2, you should see approximately:
 
 ## 🔄 Daily Workflow
 
+### 真实ALFWorld环境
+```bash
+# Every time you want to run experiments:
+cd ~/ReflectAct
+conda activate alfworld
+python run_experiment.py --agent reflact --num_tasks 5
+
+# When done:
+conda deactivate
+```
+
+### Mock环境（测试用）
 ```bash
 # Every time you want to run experiments:
 cd ~/ReflectAct
