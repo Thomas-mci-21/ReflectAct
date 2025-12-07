@@ -38,25 +38,34 @@ class ALFWorldEnv:
     def _setup_env(self):
         """Setup ALFWorld environment."""
         try:
-            import alfworld.agents.environment as environment
-            import alfworld.agents.modules.generic as generic
+            # Try the correct ALFWorld import pattern
+            from alfworld.agents.environment import get_environment
+            from alfworld.agents.modules.generic import load_config
             
             # Load config
-            config = generic.load_config()
+            config = load_config()
             
             # Get environment type (text-based)
             env_type = config['env']['type']
             
             # Setup environment
-            self.env = environment.get_environment(env_type)(config, train_eval=self.split)
+            self.env = get_environment(env_type)(config, train_eval=self.split)
             self.env = self.env.init_env(batch_size=1)
             
             # Get number of tasks
             self.num_tasks = len(self.env.gamefiles) if hasattr(self.env, 'gamefiles') else 134
             
-        except ImportError:
-            print("Warning: ALFWorld not installed. Running in mock mode.")
+            print(f"✅ ALFWorld environment loaded successfully with {self.num_tasks} tasks")
+            
+        except ImportError as e:
+            print(f"Warning: ALFWorld not installed. Running in mock mode.")
+            print(f"Import error: {e}")
             print("Install with: pip install alfworld")
+            self.env = None
+            self.num_tasks = 134
+        except Exception as e:
+            print(f"Warning: ALFWorld setup failed. Running in mock mode.")
+            print(f"Setup error: {e}")
             self.env = None
             self.num_tasks = 134
     
