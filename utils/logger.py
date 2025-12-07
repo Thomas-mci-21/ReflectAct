@@ -129,13 +129,22 @@ def save_trajectory(
         json.dump(result, f, indent=2)
 
 
-def save_summary(agent_type: str, results: list):
+def save_state_result(task_id: int, state, agent_type: str):
+    """Save MPO-style state result (aligned with MPO)."""
+    setup_logger()
+    filename = f"{config.RESULTS_DIR}/{agent_type}_task_{task_id}.json"
+    with open(filename, 'w') as f:
+        json.dump(state.to_dict(), f, indent=4)
+
+
+def save_summary(agent_type: str, results: list, states: list = None):
     """
-    Save summary statistics.
+    Save summary with MPO-style metrics (success_rate + average_reward).
     
     Args:
         agent_type: Type of agent
         results: List of result dicts with 'task_id' and 'success' keys
+        states: Optional list of State objects (for MPO-style evaluation)
     """
     setup_logger()
     
@@ -143,12 +152,24 @@ def save_summary(agent_type: str, results: list):
     successes = sum(1 for r in results if r['success'])
     success_rate = successes / total * 100 if total > 0 else 0
     
+    # MPO 对齐：计算 average_reward
+    rewards = []
+    if states:
+        # MPO style: 从 State 对象获取 reward
+        rewards = [s.reward for s in states if s.reward is not None]
+    else:
+        # Fallback: 从 results 获取（如果存在）
+        rewards = [r.get('reward', 0) for r in results if r.get('reward') is not None]
+    
+    average_reward = sum(rewards) / len(rewards) if rewards else 0.0
+    
     summary = {
         "agent_type": agent_type,
         "total_tasks": total,
         "successes": successes,
         "failures": total - successes,
         "success_rate": success_rate,
+        "average_reward": average_reward,  # MPO 指标
         "timestamp": datetime.now().isoformat(),
         "results": results
     }
@@ -157,6 +178,7 @@ def save_summary(agent_type: str, results: list):
     with open(filename, 'w') as f:
         json.dump(summary, f, indent=2)
     
+    # MPO 对齐：输出格式
     print(f"\n{Colors.BOLD}{'='*50}{Colors.RESET}")
     print(f"{Colors.BOLD}{agent_type.upper()} Summary{Colors.RESET}")
     print(f"{Colors.BOLD}{'='*50}{Colors.RESET}")
@@ -164,6 +186,9 @@ def save_summary(agent_type: str, results: list):
     print(f"Successes: {Colors.GREEN}{successes}{Colors.RESET}")
     print(f"Failures: {Colors.RED}{total - successes}{Colors.RESET}")
     print(f"Success Rate: {Colors.CYAN}{success_rate:.1f}%{Colors.RESET}")
+    # MPO 对齐：输出 average_reward
+    if rewards:
+        print(f"Average Reward: {Colors.CYAN}{average_reward:.4f}{Colors.RESET}")
     print(f"Results saved to: {filename}")
     
     return summary

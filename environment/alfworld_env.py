@@ -175,12 +175,16 @@ class ALFWorldEnv:
             observation = raw_obs
         observation = str(observation) if observation else ""
         
-        # Extract reward (handle list and tuple cases)
-        raw_reward = scores[0] if isinstance(scores, list) else scores
-        if isinstance(raw_reward, tuple):
-            reward = float(raw_reward[0]) if raw_reward else 0.0
+        # MPO 对齐：reward 来自 info['won'][0]
+        if isinstance(infos, dict) and 'won' in infos:
+            reward = float(infos['won'][0]) if isinstance(infos['won'], list) else float(infos['won'])
         else:
-            reward = float(raw_reward) if raw_reward is not None else 0.0
+            # Fallback to scores (for backward compatibility)
+            raw_reward = scores[0] if isinstance(scores, list) else scores
+            if isinstance(raw_reward, tuple):
+                reward = float(raw_reward[0]) if raw_reward else 0.0
+            else:
+                reward = float(raw_reward) if raw_reward is not None else 0.0
         
         # Extract done (handle list and tuple cases)
         raw_done = dones[0] if isinstance(dones, list) else dones
