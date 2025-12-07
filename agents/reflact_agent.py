@@ -1,13 +1,13 @@
 """
 ReflAct Agent - reflects on state in relation to goal before acting.
-Based on ReflAct paper (arXiv:2505.15182) - Section 4
+Based on ReflAct paper (arXiv:2505.15182) - Appendix K.1.1
 
 Key insight: "We introduce ReflAct, a novel backbone that shifts reasoning from 
 merely planning next actions to continuously reflecting on the agent's state 
 relative to its goal."
 """
 from agents.base_agent import BaseAgent
-from prompts.base import ALFWORLD_SYSTEM_PROMPT
+from prompts.base import SYSTEM_INSTRUCTION, AVAILABLE_ACTIONS, REMINDER
 from prompts.reflact import REFLACT_INSTRUCTION, REFLACT_EXAMPLE
 
 
@@ -15,8 +15,9 @@ class ReflActAgent(BaseAgent):
     """
     ReflAct Agent that reflects on current state in relation to goal.
     
-    From the paper: "You should first reflect on the agent's state in relation 
-    to the task goal, and then output the action for this turn."
+    From the paper (Appendix K.1.1): "You should first reflect in one sentence 
+    on the agent's state in relation to the task goal, and then output the 
+    action for this turn."
     
     Key difference from ReAct:
     - ReAct Thought: "Now I find a spraybottle 2. Next, I need to take it."
@@ -33,10 +34,18 @@ class ReflActAgent(BaseAgent):
     agent_type = "reflact"
     
     def get_system_prompt(self) -> str:
-        """Return system prompt with one-shot example."""
-        return ALFWORLD_SYSTEM_PROMPT + "\n" + REFLACT_EXAMPLE
+        """Return complete system prompt with instruction and one-shot example."""
+        return f"""{SYSTEM_INSTRUCTION}
+
+{REFLACT_INSTRUCTION}
+
+{AVAILABLE_ACTIONS}
+
+{REMINDER}
+
+Here is an example:
+{REFLACT_EXAMPLE}"""
     
     def get_instruction(self, step: int) -> str:
         """Return instruction for ReflAct (same for all steps)."""
         return REFLACT_INSTRUCTION
-

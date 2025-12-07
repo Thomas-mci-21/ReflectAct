@@ -4,7 +4,7 @@ Based on ReflAct paper (arXiv:2505.15182) - Section 6.2
 Inspired by Plan-and-Solve (Wang et al., 2023)
 """
 from agents.base_agent import BaseAgent
-from prompts.base import ALFWORLD_SYSTEM_PROMPT
+from prompts.base import SYSTEM_INSTRUCTION, AVAILABLE_ACTIONS, REMINDER
 from prompts.plan_and_act import (
     PLAN_AND_ACT_INSTRUCTION_FIRST,
     PLAN_AND_ACT_INSTRUCTION_LATER,
@@ -29,8 +29,17 @@ class PlanAndActAgent(BaseAgent):
     agent_type = "plan_and_act"
     
     def get_system_prompt(self) -> str:
-        """Return system prompt with one-shot example."""
-        return ALFWORLD_SYSTEM_PROMPT + "\n" + PLAN_AND_ACT_EXAMPLE
+        """Return complete system prompt with instruction and one-shot example."""
+        return f"""{SYSTEM_INSTRUCTION}
+
+{PLAN_AND_ACT_INSTRUCTION_FIRST}
+
+{AVAILABLE_ACTIONS}
+
+{REMINDER}
+
+Here is an example:
+{PLAN_AND_ACT_EXAMPLE}"""
     
     def get_instruction(self, step: int) -> str:
         """Return instruction based on step number."""
@@ -38,4 +47,3 @@ class PlanAndActAgent(BaseAgent):
             return PLAN_AND_ACT_INSTRUCTION_FIRST
         else:
             return PLAN_AND_ACT_INSTRUCTION_LATER
-
