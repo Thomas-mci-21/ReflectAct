@@ -59,7 +59,19 @@ class AlfWorldTask(Task):
         """Load alfworld data and prompts from a directory."""
         os.environ["ALFWORLD_DATA"] = path
 
-        with open(os.path.join(path, "base_config.yaml")) as f:
+        # Find config file - try project configs directory first, then ALFWorld data directory
+        config_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'configs', 'base_config.yaml')
+        if not os.path.exists(config_path):
+            # Fallback to ALFWorld data directory
+            config_path = os.path.join(path, "base_config.yaml")
+            if not os.path.exists(config_path):
+                raise FileNotFoundError(
+                    f"Config file not found. Tried:\n"
+                    f"  1. {os.path.join(os.path.dirname(os.path.dirname(__file__)), 'configs', 'base_config.yaml')}\n"
+                    f"  2. {os.path.join(path, 'base_config.yaml')}"
+                )
+        
+        with open(config_path) as f:
             config = yaml.safe_load(f)
 
         # Split following ReAct
