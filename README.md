@@ -90,7 +90,7 @@ Create a `.env` file:
 OPENAI_API_KEY=sk-xxxxxxxxxxxx
 
 # Model to use
-OPENAI_MODEL=gpt-4o-mini
+OPENAI_MODEL=gpt-4o-mini-ca
 
 # API base URL - for China relay/proxy (国内中转)
 OPENAI_BASE_URL=https://api.chatanywhere.tech/v1
