@@ -53,18 +53,32 @@ class ALFWorldEnv:
             try:
                 config = load_config()
             except:
-                # If config loading fails, create a minimal config
+                # If config loading fails, create a comprehensive default config
                 config = {
                     'env': {
-                        'type': 'AlfredTWEnv'
+                        'type': 'AlfredTWEnv',
+                        'goal_desc_human_anns_prob': 0.0,
+                        'clean_debug': True,
+                        'domain_randomization': False,
+                        'task_types': [1, 2, 3, 4, 5, 6],
+                        'expert_timeout_steps': 150,
+                        'expert_type': 'handcoded'
                     },
                     'general': {
                         'training_method': 'dagger',
                         'save_path': './logs/',
-                        'seed': 42
+                        'seed': 42,
+                        'use_templated_goals': False
+                    },
+                    'dataset': {
+                        'data_path': os.environ.get('ALFWORLD_DATA', '~/.cache/alfworld'),
+                        'eval_ood_data_path': os.environ.get('ALFWORLD_DATA', '~/.cache/alfworld'),
+                        'eval_id_data_path': os.environ.get('ALFWORLD_DATA', '~/.cache/alfworld'),
+                        'num_train_games': -1,
+                        'num_eval_games': -1
                     }
                 }
-                print("Using default ALFWorld config")
+                print("Using comprehensive default ALFWorld config")
             
             # Get environment type (text-based)
             env_type = config['env']['type']
