@@ -86,11 +86,10 @@ class AlfWorldTask(Task):
             split = "eval_out_of_distribution"
             N_TASKS = 134
 
-        env = getattr(alfworld.agents.environment, config["env"]["type"])(
-            config, train_eval=split
-        )
-        # Note: Type check is done at runtime, skip if module structure differs
-        # assert isinstance(env, alfworld.agents.environment.AlfredTWEnv)
+        # Use get_environment() function (official ALFWorld method)
+        from alfworld.agents.environment import get_environment
+        env_type = config["env"]["type"]
+        env = get_environment(env_type)(config, train_eval=split)
         env = env.init_env(batch_size=1)
 
         if workflow_path is not None:
