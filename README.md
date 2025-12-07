@@ -35,7 +35,25 @@ ReflAct is a novel reasoning backbone for LLM agents that shifts reasoning from 
 | Plan-and-Act | 59.0% |
 | ReflAct | **66.4%** |
 
-## Installation
+## 🚀 Quick Start (快速开始)
+
+如果你已经设置过环境，下次想要运行实验时：
+
+```bash
+# 1. 进入项目目录
+cd ~/ReflectAct
+
+# 2. 激活虚拟环境
+source venv/bin/activate
+
+# 3. 检查API密钥是否设置
+cat .env
+
+# 4. 运行实验
+python run_experiment.py --agent reflact --num_tasks 5
+```
+
+## Installation (首次安装)
 
 ### 1. Clone the repository
 
@@ -47,8 +65,8 @@ cd ReflectAct
 ### 2. Create virtual environment (recommended)
 
 ```bash
-python -m venv venv
-source venv/bin/activate  # On Linux/Mac
+python3 -m venv venv
+source venv/bin/activate  # On Linux/Mac/WSL
 # or
 .\venv\Scripts\activate  # On Windows
 ```
@@ -56,17 +74,14 @@ source venv/bin/activate  # On Linux/Mac
 ### 3. Install dependencies
 
 ```bash
-pip install -r requirements.txt
+# Install core dependencies (works without ALFWorld)
+pip install openai pyyaml python-dotenv tqdm pandas
+
+# Optional: Install ALFWorld for real environment (may have build issues)
+# pip install alfworld
 ```
 
-### 4. Install ALFWorld (in WSL/Linux)
-
-```bash
-pip install alfworld
-export ALFWORLD_DATA=/path/to/alfworld/data
-```
-
-### 5. Set up environment variables
+### 4. Set up environment variables
 
 Create a `.env` file:
 
@@ -77,40 +92,62 @@ OPENAI_API_KEY=sk-xxxxxxxxxxxx
 # Model to use
 OPENAI_MODEL=gpt-4o-mini
 
-# (Optional) API base URL - for China relay/proxy
-# Default uses chatanywhere relay
+# API base URL - for China relay/proxy (国内中转)
 OPENAI_BASE_URL=https://api.chatanywhere.tech/v1
 # Alternative: OPENAI_BASE_URL=https://api.chatanywhere.org/v1
 # For official OpenAI API: OPENAI_BASE_URL=https://api.openai.com/v1
 ```
 
-**China Users (国内用户)**: The default `base_url` is set to `https://api.chatanywhere.tech/v1` for relay access. You can change it in `.env` or `config.py`.
+### 5. Test installation
+
+```bash
+# Test the code works
+python test_mock.py
+
+# Should see: "All tests passed!"
+```
+
+**China Users (国内用户)**: The default `base_url` is set to `https://api.chatanywhere.tech/v1` for relay access.
 
 ## Usage
 
-### Run a single agent
+### 🎯 Recommended Experiments
 
 ```bash
-# Run ReflAct on 10 tasks
-python run_experiment.py --agent reflact --num_tasks 10
+# 1. Test single agent (5 tasks, ~2-3 minutes)
+python run_experiment.py --agent reflact --num_tasks 5
 
-# Run ReAct on all 134 tasks
-python run_experiment.py --agent react --num_tasks 134
+# 2. Compare all methods (10 tasks each, ~10-15 minutes)
+python run_experiment.py --agent all --num_tasks 10
 
-# Run NoThinking quietly
-python run_experiment.py --agent nothinking --num_tasks 20 --quiet
-```
-
-### Run all agents (comparison)
-
-```bash
+# 3. Reproduce Table 2 results (134 tasks each, ~2-3 hours)
 python run_experiment.py --agent all --num_tasks 134
 ```
 
-### Test without ALFWorld (mock mode)
+### 📊 Individual Agent Tests
 
 ```bash
+# Test ReflAct (our main method)
+python run_experiment.py --agent reflact --num_tasks 10
+
+# Test ReAct baseline
+python run_experiment.py --agent react --num_tasks 10
+
+# Test NoThinking baseline
+python run_experiment.py --agent nothinking --num_tasks 10
+
+# Test Plan-and-Act baseline
+python run_experiment.py --agent plan_and_act --num_tasks 10
+```
+
+### 🔧 Debug and Test
+
+```bash
+# Test code without API calls
 python test_mock.py
+
+# Run quietly (less output)
+python run_experiment.py --agent reflact --num_tasks 5 --quiet
 ```
 
 ## Project Structure
@@ -183,6 +220,29 @@ Results are saved in JSON format:
 
 - `results/{agent_type}_task_{id}.json` - Individual task trajectories
 - `results/{agent_type}_summary.json` - Summary statistics
+
+### 📈 Expected Results (GPT-4o-mini)
+
+Based on paper Table 2, you should see approximately:
+
+| Method | Success Rate | Our Target |
+|--------|-------------|------------|
+| NoThinking | 43.3% | ~40-45% |
+| ReAct | 53.0% | ~50-55% |
+| Plan-and-Act | 59.0% | ~55-60% |
+| ReflAct | **66.4%** | **~65-70%** |
+
+## 🔄 Daily Workflow
+
+```bash
+# Every time you want to run experiments:
+cd ~/ReflectAct
+source venv/bin/activate
+python run_experiment.py --agent reflact --num_tasks 5
+
+# When done:
+deactivate
+```
 
 ## Extending the Code
 
