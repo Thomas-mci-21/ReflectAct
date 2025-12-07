@@ -71,9 +71,20 @@ export ALFWORLD_DATA=/path/to/alfworld/data
 Create a `.env` file:
 
 ```bash
-OPENAI_API_KEY=your_openai_api_key_here
+# Your OpenAI API key
+OPENAI_API_KEY=sk-xxxxxxxxxxxx
+
+# Model to use
 OPENAI_MODEL=gpt-4o-mini
+
+# (Optional) API base URL - for China relay/proxy
+# Default uses chatanywhere relay
+OPENAI_BASE_URL=https://api.chatanywhere.tech/v1
+# Alternative: OPENAI_BASE_URL=https://api.chatanywhere.org/v1
+# For official OpenAI API: OPENAI_BASE_URL=https://api.openai.com/v1
 ```
+
+**China Users (国内用户)**: The default `base_url` is set to `https://api.chatanywhere.tech/v1` for relay access. You can change it in `.env` or `config.py`.
 
 ## Usage
 

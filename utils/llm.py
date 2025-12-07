@@ -7,8 +7,11 @@ import config
 
 
 def get_client():
-    """Get OpenAI client."""
-    return OpenAI(api_key=config.OPENAI_API_KEY)
+    """Get OpenAI client with optional base_url for proxy/relay API."""
+    return OpenAI(
+        api_key=config.OPENAI_API_KEY,
+        base_url=config.OPENAI_BASE_URL
+    )
 
 
 def call_llm(messages: list, temperature: float = None) -> str:
