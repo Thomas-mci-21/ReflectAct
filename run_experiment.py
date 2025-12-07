@@ -54,6 +54,7 @@ def run_react_agent_mpo_style(
     - Main loop: env.reset() -> agent(state.history) -> env.step(llm_output)
     """
     import os
+    import sys
     from tasks.alfworld import AlfWorldTask
     from environment.alfworld_env_mpo import AlfWorldEnvMPO
     from agents.react_agent import ReActAgent
@@ -116,15 +117,21 @@ def run_react_agent_mpo_style(
             
             if verbose:
                 print(f"\n{Colors.YELLOW}Initial Prompt:{Colors.RESET}\n{observation[:500]}...")
+                sys.stdout.flush()  # 确保输出立即显示
             
             # Main loop (MPO style) - 完全对齐 MPO
             while not state.finished:
                 try:
+                    if verbose:
+                        print(f"\n{Colors.CYAN}[Step {state.steps + 1}] Calling LLM...{Colors.RESET}")
+                        sys.stdout.flush()
+                    
                     # Agent just calls LLM
                     llm_output = agent(state.history)
                     
                     if verbose:
                         print(f"\n{Colors.GREEN}Agent Output:{Colors.RESET}\n{llm_output}")
+                        sys.stdout.flush()
                     
                     # Environment parses, executes, and updates state
                     observation, state = env.step(llm_output)
@@ -132,6 +139,7 @@ def run_react_agent_mpo_style(
                     if not state.finished:
                         if verbose:
                             print(f"\n{Colors.BLUE}Observation:{Colors.RESET}\n{observation}")
+                            sys.stdout.flush()
                     
                     # MPO 对齐：检查是否需要退出
                     if state.finished:
@@ -140,6 +148,7 @@ def run_react_agent_mpo_style(
                 except Exception as e:
                     if verbose:
                         print(f"{Colors.RED}Error: {e}{Colors.RESET}")
+                        sys.stdout.flush()
                     # MPO 对齐：terminate_reason
                     state.success = False
                     state.finished = True

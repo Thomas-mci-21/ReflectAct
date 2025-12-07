@@ -73,10 +73,12 @@ def log_task_start(task_id: int, task_description: str, agent_type: str, verbose
     if not verbose:
         return
     
+    import sys
     print(f"\n{Colors.BOLD}{'#'*70}{Colors.RESET}")
     print(f"{Colors.BOLD}Task {task_id}: {agent_type} Agent{Colors.RESET}")
     print(f"{Colors.BOLD}{'#'*70}{Colors.RESET}")
     print(f"{Colors.CYAN}Goal:{Colors.RESET} {task_description}")
+    sys.stdout.flush()  # 确保输出立即显示
 
 
 def log_task_end(success: bool, steps: int, verbose: bool = True):
@@ -84,9 +86,11 @@ def log_task_end(success: bool, steps: int, verbose: bool = True):
     if not verbose:
         return
     
+    import sys
     status = f"{Colors.GREEN}SUCCESS{Colors.RESET}" if success else f"{Colors.RED}FAILED{Colors.RESET}"
     print(f"\n{Colors.BOLD}Result: {status} in {steps} steps{Colors.RESET}")
     print(f"{'='*70}\n")
+    sys.stdout.flush()  # 确保输出立即显示
 
 
 def save_trajectory(
