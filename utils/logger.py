@@ -51,9 +51,8 @@ def log_step(
     print(f"{Colors.CYAN}Step {step}{Colors.RESET}")
     print(f"{Colors.BOLD}{'='*60}{Colors.RESET}")
     
-    # Print observation (truncate if too long)
-    obs_display = observation[:500] + "..." if len(observation) > 500 else observation
-    print(f"{Colors.YELLOW}Observation:{Colors.RESET} {obs_display}")
+    # Print observation (full, no truncation)
+    print(f"{Colors.YELLOW}Observation:{Colors.RESET} {observation}")
     
     # Print reasoning if present
     if reasoning_type and reasoning:

@@ -128,7 +128,7 @@ def run_react_agent_mpo_style(
             log_task_start(task.task_id, task_desc, 'react', verbose)
             
             if verbose:
-                print(f"\n{Colors.YELLOW}Initial Prompt:{Colors.RESET}\n{observation[:500]}...")
+                print(f"\n{Colors.YELLOW}Initial Prompt (full):{Colors.RESET}\n{observation}")
                 sys.stdout.flush()  # 确保输出立即显示
             
             # Main loop (MPO style) - 完全对齐 MPO
