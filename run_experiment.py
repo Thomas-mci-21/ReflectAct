@@ -55,10 +55,12 @@ def run_react_agent_mpo_style(
     """
     import os
     import sys
+    import json
     from tasks.alfworld import AlfWorldTask
     from environment.alfworld_env_mpo import AlfWorldEnvMPO
     from agents.react_agent import ReActAgent
     from utils.logger import save_summary, Colors, log_task_start, log_task_end, save_state_result
+    from utils.datatypes import State
     
     # Load tasks (MPO style)
     # Determine ALFWorld data path
@@ -117,6 +119,35 @@ def run_react_agent_mpo_style(
             break
         
         task_count += 1
+        
+        # 检查文件是否已存在
+        result_file = os.path.join(config.RESULTS_DIR, f"react_task_{task.task_id}.json")
+        if os.path.exists(result_file):
+            if verbose:
+                print(f"\n{Colors.YELLOW}Task {task.task_id} already completed, skipping...{Colors.RESET}")
+                sys.stdout.flush()
+            
+            # 读取已有的 state
+            try:
+                with open(result_file, 'r') as f:
+                    state_dict = json.load(f)
+                state = State.load_json(state_dict)
+                states.append(state)
+                
+                # 添加到 results
+                results.append({
+                    "task_id": task.task_id,
+                    "success": state.success,
+                    "num_steps": state.steps,
+                    "reward": state.reward,
+                })
+                continue  # 跳过任务执行
+            except Exception as e:
+                if verbose:
+                    print(f"{Colors.RED}Error loading existing result for task {task.task_id}: {e}, will re-run...{Colors.RESET}")
+                    sys.stdout.flush()
+                # 如果读取失败，继续运行任务
+        
         try:
             # Create environment for this task (MPO style)
             env = AlfWorldEnvMPO(task, **env_config)
@@ -210,8 +241,8 @@ def run_react_agent_mpo_style(
                 "error": str(e),
             })
     
-    # MPO 对齐：传入 states 计算 average_reward
-    summary = save_summary('react', results, states)
+    # MPO 对齐：传入 states 计算 average_reward，并读取所有已有结果文件
+    summary = save_summary('react', results, states, read_all_from_files=True)
     
     return summary
 

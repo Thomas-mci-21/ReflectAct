@@ -3,8 +3,9 @@ Logging utilities for ReflAct experiments.
 """
 import os
 import json
+import glob
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 import config
 
 
@@ -140,7 +141,7 @@ def save_state_result(task_id: int, state, agent_type: str):
         json.dump(state.to_dict(), f, indent=4)
 
 
-def save_summary(agent_type: str, results: list, states: list = None):
+def save_summary(agent_type: str, results: list, states: list = None, read_all_from_files: bool = True):
     """
     Save summary with MPO-style metrics (success_rate + average_reward).
     
@@ -148,8 +149,57 @@ def save_summary(agent_type: str, results: list, states: list = None):
         agent_type: Type of agent
         results: List of result dicts with 'task_id' and 'success' keys
         states: Optional list of State objects (for MPO-style evaluation)
+        read_all_from_files: If True, read all existing result files and merge with current results
     """
     setup_logger()
+    
+    # 如果启用从文件读取，读取所有已有的结果文件
+    if read_all_from_files:
+        from utils.datatypes import State
+        
+        pattern = os.path.join(config.RESULTS_DIR, f"{agent_type}_task_*.json")
+        existing_files = glob.glob(pattern)
+        
+        # 创建 task_id -> result 和 task_id -> state 映射，避免重复
+        all_results_dict = {}
+        all_states_dict = {}
+        
+        # 先添加当前运行的结果
+        for r in results:
+            all_results_dict[r['task_id']] = r
+        
+        if states:
+            for s, r in zip(states, results):
+                all_states_dict[r['task_id']] = s
+        
+        # 读取所有已有的文件
+        for filepath in existing_files:
+            try:
+                with open(filepath, 'r') as f:
+                    state_dict = json.load(f)
+                
+                # 从文件名提取 task_id
+                filename = os.path.basename(filepath)
+                # 格式: {agent_type}_task_{task_id}.json
+                task_id_str = filename.replace(f"{agent_type}_task_", "").replace(".json", "")
+                task_id = int(task_id_str)
+                
+                # 如果当前结果中没有这个 task_id，才添加（优先使用当前运行的结果）
+                if task_id not in all_results_dict:
+                    state = State.load_json(state_dict)
+                    all_states_dict[task_id] = state
+                    all_results_dict[task_id] = {
+                        "task_id": task_id,
+                        "success": state.success,
+                        "num_steps": state.steps,
+                        "reward": state.reward,
+                    }
+            except Exception as e:
+                print(f"{Colors.YELLOW}Warning: Failed to read {filepath}: {e}{Colors.RESET}")
+        
+        # 转换为列表并按 task_id 排序
+        results = sorted(all_results_dict.values(), key=lambda x: x['task_id'])
+        states = [all_states_dict[r['task_id']] for r in results if r['task_id'] in all_states_dict]
     
     total = len(results)
     successes = sum(1 for r in results if r['success'])
