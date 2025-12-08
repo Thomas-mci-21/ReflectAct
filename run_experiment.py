@@ -87,7 +87,7 @@ def run_react_agent_mpo_style(
     base_dir = os.path.dirname(__file__)
     env_config = {
         "instruction_path": os.path.join(base_dir, "prompt", "instructions", "alfworld_inst.txt"),
-        "icl_path": os.path.join(base_dir, "prompt", "icl_examples", "alfworld_icl.json"),
+        "icl_path": os.path.join(base_dir, "prompt", "icl_examples", "alfworld_selected.json"),
         "icl_format": "first",
         "max_steps": 30,
         "incorporation_type": "query",
