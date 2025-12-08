@@ -81,9 +81,6 @@ def run_react_agent_mpo_style(
         part_idx=-1,
     )
     
-    # Limit number of tasks
-    task_list = list(all_tasks)[start_task:start_task + num_tasks]
-    
     # Environment config (MPO style)
     base_dir = os.path.dirname(__file__)
     env_config = {
@@ -100,11 +97,26 @@ def run_react_agent_mpo_style(
     results = []
     states = []  # MPO-style states
     
+    # MPO 对齐：直接迭代 generator，不转换为 list（避免预先加载所有任务）
+    # Calculate actual number of tasks to process
+    actual_num_tasks = min(num_tasks, n_tasks - start_task)
+    
     print(f"\n{Colors.BOLD}{'='*70}{Colors.RESET}")
-    print(f"{Colors.BOLD}Running REACT Agent (MPO-aligned) on {len(task_list)} tasks{Colors.RESET}")
+    print(f"{Colors.BOLD}Running REACT Agent (MPO-aligned) on {actual_num_tasks} tasks{Colors.RESET}")
     print(f"{Colors.BOLD}{'='*70}{Colors.RESET}")
     
-    for task in task_list:
+    # MPO 对齐：直接迭代 generator，按需加载任务
+    task_count = 0
+    for task in all_tasks:
+        # Skip tasks before start_task
+        if task.task_id < start_task:
+            continue
+        
+        # Stop if we've processed enough tasks
+        if task_count >= num_tasks:
+            break
+        
+        task_count += 1
         try:
             # Create environment for this task (MPO style)
             env = AlfWorldEnvMPO(task, **env_config)
