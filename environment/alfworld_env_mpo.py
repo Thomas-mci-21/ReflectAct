@@ -147,7 +147,7 @@ class AlfWorldEnvMPO(BaseEnv):
                 instruction=self.instruction, 
                 raw_icl=self.raw_icl[self.task.task_type], 
                 cur_task=cur_task, 
-                icl_num=1,
+                icl_num=3,
                 workflow=self.task.workflow if hasattr(self.task, 'workflow') else None,
             )
         else:
@@ -155,7 +155,7 @@ class AlfWorldEnvMPO(BaseEnv):
                 instruction=self.instruction, 
                 raw_icl=self.raw_icl[self.task.task_type], 
                 cur_task=cur_task, 
-                icl_num=1,
+                icl_num=3,
                 workflow=None,
             )
         
